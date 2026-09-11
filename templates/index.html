@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <title>Network Monitoring</title>
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>Network Monitoring System</h1>
+        <div class="statistics">
+            <div>
+                <h3>Total</h3>
+                <p>{{ total_devices }}</p>
+            </div>
+            <div>
+                <h3>UP</h3>
+                <p>{{ up_devices }}</p>
+            </div>
+            <div>
+                <h3>DOWN</h3>
+                <p>{{ down_devices }}</p>
+            </div>
+        </div>
+
+        <form method="POST">
+            <input type="text" name="name" placeholder="Nom de l'équipement" required>
+            <input type="text" name="ip" placeholder="Adresse IP" required>
+            <button type="submit">Ajouter</button>
+        </form>
+
+        <table>
+            <tr>
+                <th>Équipement</th>
+                <th>Adresse IP</th>
+                <th>État</th>
+                <th>Temps de réponse</th>
+                <th>Uptime (24h)</th>
+                <th>Action</th>
+            </tr>
+
+            {% for device in devices %}
+            <tr>
+                <td>{{ device.name }}</td>
+                <td>{{ device.ip }}</td>
+                <td>
+                    {% if device.status %}
+                        <span class="up">🟢 UP</span>
+                    {% else %}
+                        <span class="down">🔴 DOWN</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if device.response_time is not none %}
+                        {{ device.response_time }} ms
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if device.uptime is not none %}
+                        {{ device.uptime }}%
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="/history/{{ device.id }}">📊 Historique</a>
+                    <a href="/history/{{ device.id }}">📊 Historique</a>
+                    <a href="/edit/{{ device.id }}">✏️ Modifier</a>
+                    <form method="POST" action="/delete/{{ device.id }}" style="display:inline">
+                        <button type="submit">🗑️ Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+    </div>
+
+</body>
+<form method="POST">
+    <input type="text" name="name" placeholder="Nom de l'équipement" required>
+    <input type="text" name="ip" placeholder="Adresse IP" required>
+    <input type="email" name="email" placeholder="Email pour les alertes" required>
+    <button type="submit">Ajouter</button>
+</form>
+</html>

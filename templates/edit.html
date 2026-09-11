@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <title>Modifier - {{ device.name }}</title>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Modifier l'équipement</h1>
+
+        <p><a href="/">&larr; Retour</a></p>
+
+        <form method="POST">
+            <input
+                type="text"
+                name="name"
+                value="{{ device.name }}"
+                required
+            >
+            <input
+                type="text"
+                name="ip"
+                value="{{ device.ip }}"
+                required
+            >
+            <button type="submit">Enregistrer</button>
+        </form>
+    </div>
+
+</body>
+<form method="POST">
+    <input type="text" name="name" value="{{ device.name }}" required>
+    <input type="text" name="ip" value="{{ device.ip }}" required>
+    <input type="email" name="email" value="{{ device.email }}" required>
+    <button type="submit">Enregistrer</button>
+</form>
+</html>

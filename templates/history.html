@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <title>Historique - {{ device.name }}</title>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Historique — {{ device.name }} ({{ device.ip }})</h1>
+
+        <p><a href="/">&larr; Retour</a></p>
+
+        <div class="statistics">
+            <div>
+                <h3>Uptime (24h)</h3>
+                <p>{% if uptime is not none %}{{ uptime }}%{% else %}-{% endif %}</p>
+            </div>
+        </div>
+
+        <table>
+            <tr>
+                <th>Date / Heure</th>
+                <th>État</th>
+                <th>Temps de réponse</th>
+            </tr>
+
+            {% for record in records %}
+            <tr>
+                <td>{{ record.timestamp }}</td>
+                <td>
+                    {% if record.status == 1 %}
+                        <span class="up">🟢 UP</span>
+                    {% else %}
+                        <span class="down">🔴 DOWN</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.response_time is not none %}
+                        {{ record.response_time }} ms
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</body>
+</html>
