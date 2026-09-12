@@ -125,23 +125,32 @@ def ping_device(ip):
     else:
         command = ["ping", "-c", "1", ip]
 
-    result = subprocess.run(command, capture_output=True, text=True)
+    try:
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+    except FileNotFoundError:
+        print("[PING] Command 'ping' not available on this server.")
+        return False, None
+    except subprocess.TimeoutExpired:
+        print(f"[PING] Timeout for {ip}")
+        return False, None
 
     if result.returncode != 0:
         return False, None
 
     output = result.stdout.lower()
 
-    if "temps<" in output:
-        return True, 1.0
-
     if "time=" in output:
-        time_part = output.split("time=")[1].split("ms")[0]
         try:
+            time_part = output.split("time=")[1].split("ms")[0]
             response_time = float(time_part.replace(",", "."))
             return True, response_time
-        except ValueError:
-            pass
+        except (ValueError, IndexError):
+            return True, None
 
     return True, None
 
@@ -150,7 +159,6 @@ def ping_device(ip):
 def send_email_alert(device_name, ip, new_status, recipient_email):
     if not recipient_email:
         return
-
     subject_status = "UP" if new_status else "DOWN"
     subject = f"[Network Monitor] {device_name} est {subject_status}"
 
