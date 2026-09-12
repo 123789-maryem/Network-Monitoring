@@ -121,39 +121,40 @@ def get_device_history(device_id, limit=50):
 
 def ping_device(ip):
     if platform.system() == "Windows":
-        command = ["ping", "-n", "1", ip]
+        command = ["ping", "-n", "1", "-w", "3000", ip]
     else:
-        command = ["ping", "-c", "1", ip]
+        command = ["ping", "-c", "1", "-W", "3", ip]
 
     try:
         result = subprocess.run(
             command,
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=5
         )
+
+        if result.returncode != 0:
+            return False, None
+
+        output = result.stdout.lower()
+
+        if "time=" in output:
+            try:
+                time_part = output.split("time=")[1].split("ms")[0]
+                response_time = float(time_part.replace(",", "."))
+                return True, response_time
+            except (ValueError, IndexError):
+                return True, None
+
+        return True, None
+
     except FileNotFoundError:
-        print("[PING] Command 'ping' not available on this server.")
+        print("[PING] ping command is not available.")
         return False, None
+
     except subprocess.TimeoutExpired:
-        print(f"[PING] Timeout for {ip}")
+        print(f"[PING] Timeout: {ip}")
         return False, None
-
-    if result.returncode != 0:
-        return False, None
-
-    output = result.stdout.lower()
-
-    if "time=" in output:
-        try:
-            time_part = output.split("time=")[1].split("ms")[0]
-            response_time = float(time_part.replace(",", "."))
-            return True, response_time
-        except (ValueError, IndexError):
-            return True, None
-
-    return True, None
-
 
 # ---------- EMAIL ----------
 def send_email_alert(device_name, ip, new_status, recipient_email):
